@@ -3,19 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ShowMeServerhttp;
+package Server;
 import BD.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import serverhttp.ShowMe.*;
+
 public class ShowMeServer {
-    static ArrayList<Evento> eventos;
-    static ArrayList<Grupo> grupos;
-    static ArrayList<Usuario> usuarios;
     static int port=8000;
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);

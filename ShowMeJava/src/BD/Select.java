@@ -82,7 +82,11 @@ public class Select extends Processador{
                 ano=EncontrarParametro("ano",termo);
                 mes=EncontrarParametro("mes",termo);
                 dia=EncontrarParametro("dia",termo);
-                query = "select codigo_evento from evento where data like '"+ano+mes+dia+"'";
+                query = "select codigo_evento from evento where dia=? and mes=? and ano=?";
+                statement=conexao.prepareStatement(query);
+                statement.setString(1, dia);
+                statement.setString(2, mes);
+                statement.setString(3, ano);
                 ResultSet result=conexao.createStatement().executeQuery(query);
                 String list="";
                 do{
@@ -105,8 +109,12 @@ public class Select extends Processador{
                 ano=EncontrarParametro("ano",termo);
                 mes=EncontrarParametro("mes",termo);
                 String quantidade="";
-                for (int i=0;i<31;i++){
-                    query = "select count(codigo_evento) from evento e,sigo s,grupo g where g.codigo_grupo=s.codigo_grupo and data like '"+ano+mes+"__,";
+                for (int dia=0;dia<31;dia++){
+                    query = "select count(codigo_evento) from evento e,sigo s,grupo g where e.dia=? and e.mes=? and e.ano=?";
+                    statement=conexao.prepareStatement(query);
+                    statement.setString(1, dia+"");
+                    statement.setString(2, mes);
+                    statement.setString(3, ano);
                     ResultSet result=conexao.createStatement().executeQuery(query);
                     result.first();
                     quantidade+=result.getString(1)+"&";
@@ -123,12 +131,19 @@ public class Select extends Processador{
     public void QuantidadeEventosMesSigo(String termo){
         if (Conectar()){
             try{
-                String ano,mes;
+                String ano,mes,usuario;
                 ano=EncontrarParametro("ano",termo);
                 mes=EncontrarParametro("mes",termo);
+                usuario=EncontrarParametro("usuario", termo);
                 String quantidade="";
-                for (int i=0;i<31;i++){
-                    query = "select count(codigo_evento) from evento e,sigo s,grupo g where data like '"+ano+mes+"__,";
+                for (int dia=0;dia<31;dia++){
+                    query = "select count(codigo_evento) from evento e,sigo s,grupo g where e.dia=? and e.mes=? and e.ano=?"
+                            + " and e.codigo_grupo=g.codigo_grupo and g.codigo_grupo=s.codigo_grupo and s.codigo_usuario=?";
+                    statement=conexao.prepareStatement(query);
+                    statement.setString(1, dia+"");
+                    statement.setString(2, mes);
+                    statement.setString(3, ano);
+                    statement.setString(4, usuario);
                     ResultSet result=conexao.createStatement().executeQuery(query);
                     result.first();
                     quantidade+=result.getString(1)+"&";
