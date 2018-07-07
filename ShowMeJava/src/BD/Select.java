@@ -14,7 +14,7 @@ import java.sql.SQLException;
  * @author Tiago
  */
 public class Select extends Processador{
-    
+    ResultSet result;
     public Select(HttpExchange origem) {
         super(origem);
     }
@@ -78,17 +78,19 @@ public class Select extends Processador{
     public void EventosDia(String termo){
         if (Conectar()){
             try{
-                String ano,mes,dia;
-                ano=EncontrarParametro("ano",termo);
-                mes=EncontrarParametro("mes",termo);
-                dia=EncontrarParametro("dia",termo);
-                query = "select codigo_evento from evento where dia=? and mes=? and ano=?";
+                String data,cidade,estado;
+                data=EncontrarParametro("data",termo);
+                cidade=EncontrarParametro("cidade",termo);
+                estado=EncontrarParametro("estado",termo);
+                query = "select codigo_evento from evento WHERE data >= ? AND data < ? + INTERVAL 1 DAY and cidade=? and estado=?";
                 statement=conexao.prepareStatement(query);
-                statement.setString(1, dia);
-                statement.setString(2, mes);
-                statement.setString(3, ano);
-                ResultSet result=conexao.createStatement().executeQuery(query);
+                statement.setString(1, data);
+                statement.setString(2, data);
+                statement.setString(3, cidade);
+                statement.setString(4, estado);
+                result=statement.executeQuery();
                 String list="";
+                result.first();
                 do{
                     list+=result.getString("codigo_evento")+"\n";
                 }

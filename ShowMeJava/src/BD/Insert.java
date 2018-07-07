@@ -5,8 +5,9 @@
  */
 package BD;
 
-import ShowMeServerhttp.EnviarEmail;
+import Server.Validar;
 import com.sun.net.httpserver.HttpExchange;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -21,7 +22,7 @@ public class Insert extends Processador{
                 String senha = Validar.SenhaAleatoria(8);   
                 query = String.format("insert into usuario (email,senha) values ('%s','%s')",email,senha);
                 conexao.createStatement().executeUpdate(query);
-                EnviarEmail.NovoEmail(email,"Bem vindo ao ShowMe","sua senha é:\n"+senha+"\n\nVoce pode alterar a senha apos realizar o login.");
+                //EnviarEmail.NovoEmail(email,"Bem vindo ao ShowMe","sua senha é:\n"+senha+"\n\nVoce pode alterar a senha apos realizar o login.");
                 Responder("sucesso, senha enviada para seu email");
             }
             catch (SQLException e){
@@ -47,16 +48,46 @@ public class Insert extends Processador{
         }
         Desconectar();
     }
+    public void Entrar(String termo){
+        if (Conectar()){
+            try{
+                String usuario=EncontrarParametro("usuario", termo);
+                String data=Validar.AAAAMMDD();
+                String hora=Validar.HHMM();
+                query=String.format("insert into login (codigo_usuario,data,hora) values (?,?,?)",usuario,data,hora);
+                statement=conexao.prepareStatement(query);
+                statement.setString(1, usuario);
+                statement.setString(2, data);
+                statement.setString(3, hora);
+                statement.executeUpdate();
+                resposta="sucesso, login efetuado";
+            }
+            catch (SQLException e ){
+                System.out.println(e.getMessage());
+                resposta="falha";
+            }
+        }
+        Responder(resposta);
+    }
     public void CreateEvent(String termo){
         if (Conectar()){        
             try {
                 String local=EncontrarParametro("local", termo);
-                String hora=EncontrarParametro("hora", termo);
-                String dia=EncontrarParametro("dia", termo);
+                String data=EncontrarParametro("data", termo);
+                String cidade=EncontrarParametro("cidade", termo);
+                String estado=EncontrarParametro("estado", termo);
+                String descricao=EncontrarParametro("descricao", termo);
                 String grupo=EncontrarParametro("grupo", termo);
-                query = String.format("insert into evento (local,hora,dia,grupo) values ('%s','%s','%s','%s')",local,hora,dia,grupo);
-                conexao.createStatement().executeUpdate(query);
-                Responder("sucesso, conta vinculada ao facebook");
+                query = "insert into evento (local,descricao,codigo_grupo,data,cidade,estado) values (?,?,?,?,?,?)";
+                statement=conexao.prepareStatement(query);
+                statement.setString(1, local);
+                statement.setString(2, descricao);
+                statement.setString(3, grupo);
+                statement.setString(4, data);
+                statement.setString(5, cidade);
+                statement.setString(6, estado);
+                statement.executeUpdate();
+                Responder("sucesso, evento criado");
             }
             catch (SQLException e){
                 System.out.println(e.getMessage());

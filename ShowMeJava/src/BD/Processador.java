@@ -5,7 +5,7 @@
  */
 package BD;
 
-import ShowMeServerhttp.EnviarEmail;
+import Server.Validar;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -58,51 +58,6 @@ public class Processador {
         catch (Exception e){
             System.out.println(e.getMessage());
         }
-    }    
-    public void Login(String email,String senha){
-        if (Conectar()){
-            try{
-                String query=String.format("select senha,codigo_usuario from usuario where email='%s'",email);
-                ResultSet result=conexao.createStatement().executeQuery(query);
-                result.first();
-                String codigo=result.getString("codigo_usuario");
-                String pass=result.getString("senha");
-                String data=Validar.AAAAMMDD();
-                String hora=Validar.HHMM();
-                if (Validar.ChecarSenha(pass,senha)){
-                    try{
-                        query=String.format("insert into login (codigo_usuario,data,hora) values (%s,%s,%s)",codigo,data,hora);
-                        conexao.createStatement().executeUpdate(query);
-                        resposta=codigo;
-                    }
-                    catch (SQLException e){
-                        System.out.println(e.getMessage());
-                        resposta="falha";
-                    }
-                } else resposta="falha, senha  incorreta";
-            }
-            catch (SQLException e ){
-                System.out.println(e.getMessage());
-                resposta="falha";
-            }
-        }
-        Responder(resposta);
-    }
-    public void RandomPassword (String email){
-        if (Conectar()){
-            try{
-                String senha = Validar.SenhaAleatoria(8);
-                query = String.format("update usuario set senha = '%s' where email = '%s'",senha,email);
-                conexao.createStatement().executeUpdate(query);
-                EnviarEmail.NovoEmail(email,"Sua Senha em ShowMe foi alterada","sua senha é:\n"+senha+"\n\nVoce pode alterar a senha apos realizar o login.");
-                Responder("Sucesso, uma nova senha foi enviada para o seu email");
-            }
-            catch (SQLException e ){
-                System.out.println(e.getMessage());
-                Responder("falha");
-            }
-        }
-        Desconectar();
     }
     public String EncontrarParametro(String parametro,String listaParametros){
         for (String part : listaParametros.split("&"))
@@ -125,6 +80,5 @@ public class Processador {
             }
         }
         Desconectar();
-    }
-    
+    }    
 }

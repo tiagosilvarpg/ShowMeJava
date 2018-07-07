@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package BD;
+package Server;
 
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -43,10 +43,10 @@ public abstract class Validar {
         }
         return saida;
     }
-    static boolean ChecarSenha(String pass, String senha) {
+    public static boolean ChecarSenha(String pass, String senha) {
         return senha.equals(pass);
     }
-    static String AAAAMMDD(){
+    public static String AAAAMMDD(){
         String year=ZonedDateTime.now().getYear()+"";
         String month=ZonedDateTime.now().getMonthValue()+"";
         String day=ZonedDateTime.now().getDayOfMonth()+"";
@@ -54,7 +54,7 @@ public abstract class Validar {
         if (day.length()==1)day="0"+day;
         return year+month+day;
     }
-    static String HHMM(){        
+    public static String HHMM(){        
         String hora=ZonedDateTime.now().getHour()+"";
         String minuto=ZonedDateTime.now().getMinute()+"";        
         if (hora.length()==1)hora="0"+hora;

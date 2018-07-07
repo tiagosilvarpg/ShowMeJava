@@ -5,14 +5,14 @@
  */
 package Server;
 
-import java.util.Properties;
+import java.util.Properties;/*
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMessage;*/
 /**
  *
  * @author Tiago
@@ -27,7 +27,7 @@ public class EnviarEmail {
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
         props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-        
+        /*
         Session session = Session.getInstance(props,
         new javax.mail.Authenticator() {
               protected PasswordAuthentication getPasswordAuthentication() {
@@ -46,7 +46,7 @@ public class EnviarEmail {
             } 
         catch (MessagingException e) {
             System.out.println(e.getMessage());
-        }
+        }*/
     }
     
 }

@@ -15,9 +15,7 @@ public class ShowMeServer {
     static int port=8000;
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/usuario", new User());
-        server.createContext("/grupo", new Group());
-        server.createContext("/evento", new Event());
+        server.createContext("/usuario/", new User());
         server.createContext("/stop", new Stop());
         server.setExecutor(null); // creates a default executor
         server.start();
@@ -27,79 +25,45 @@ public class ShowMeServer {
         @Override
         public void handle(HttpExchange origem) throws IOException{
             String termo=origem.getRequestURI().toString();
-            termo=termo.replaceFirst("/usuario", "");
-            try{
-                if (termo.startsWith("/novoUsuario/")){
-                    termo=termo.replaceFirst("/novoUsuario/", "");
-                    if (Validar.Email(termo))
-                        new Insert(origem).CreateUser(termo);
-                }
-                else if (termo.startsWith("/resetarSenha/")){
-                    termo=termo.replaceFirst("/resetarSenha/", "");
-                        new Processador (origem).RandomPassword(termo);
-                }
-                else if (termo.startsWith("/alterarSenha/")){
-                    termo=termo.replaceFirst("/alterarSenha/", "");
-                        new Processador (origem).ChangePassword(termo.split("&")[0],termo.split("&")[1]);
-                }
-                 else if (termo.startsWith("/entrar/")){
-                    termo=termo.replaceFirst("/entrar/", "");
-                        new Processador (origem).Login(termo.split("&")[0],termo.split("&")[1]);
-                }
-            }
-            catch (Exception e){
-                System.out.println(e.getMessage());
-            }
-        }
-    }
-    static class Group implements HttpHandler
-    {
-        @Override
-        public void handle(HttpExchange origem) throws IOException{
-            String termo=origem.getRequestURI().toString();            
-            System.out.println(termo);
-            termo=termo.replaceFirst("/grupo", "");
-            try{
-                /*if (termo.startsWith("/novoGrupo/")){
-                    termo=termo.replaceFirst("/novoGrupo/", "");
-                        new Processador (origem).CreateGrupo(termo);
-                }*/
-            }
-            catch (Exception e){
-                System.out.println(e.getMessage());
-            }
-        }
-    }
-    static class Event implements HttpHandler
-    {
-        @Override
-        public void handle(HttpExchange origem) throws IOException{
-            String termo=origem.getRequestURI().toString();            
-            System.out.println(termo);
-            termo=termo.replaceFirst("/evento", "");
-            try{
-                if (termo.startsWith("/novoEvento/")){
-                    termo=termo.replaceFirst("/novoEvento/", "");
-                    new Insert (origem).CreateEvent(termo);
-                }
-                if (termo.startsWith("/quantidadeEventos/")){
-                    termo=termo.replaceFirst("/quantidadeEventos/", "");
-                    new Select (origem).QuantidadeEventosMes(termo);
+            termo=termo.replaceFirst("/usuario/", "");
+            String[] cases=new String[]{
+            "novoUsuario/",
+            "entrar/",
+            "seguirGrupo/",
+            "deixarGrupo/",
+            "criarGrupo/",
+            "adicionarMembro/",
+            "editarPerfil/",
+            "novoEvento/",
+            "listarEventosdia/",
+            "listarEventosMes/",
+            "listarEventosMesSigo/"
+            };            
+            for (int i=0;i<cases.length;i++){
+                System.out.println(cases[i]);
+                if (termo.startsWith(cases[i])){
+                    termo=termo.replaceFirst(cases[i],"");
+                    System.out.println(termo);
+                    switch (i){
+                        case 0: new Insert(origem).CreateEvent(termo);break;
+                        case 1: new Insert(origem).Entrar(termo);break;
+                        case 2: new Insert(origem).SeguirGrupo(termo);break;
+                        case 3: new Delete(origem).DeixarDeSeguir(termo);break;
+                        case 4: new Insert(origem).CreateGroup(termo);break;
+                        case 5: new Insert(origem).ParticiparGrupo(termo);break;
+                        case 6: new Update(origem).UpdateGroup(termo);break;  
+                        case 7: new Insert(origem).CreateEvent(termo);break;
+                        case 8: new Select(origem).EventosDia(termo);break;
+                        case 9: new Select(origem).QuantidadeEventosMes(termo);break;
+                        case 10: new Select(origem).QuantidadeEventosMesSigo(termo);break;
+                    }
+                    break;
                 }
             }
-            catch (Exception e){
-                System.out.println(e.getMessage());
-            }
-        }
-    }
-     static class ConfirmarEmail implements HttpHandler
-    {
-        @Override
-        public void handle(HttpExchange t) throws IOException
-        {
-            String termo=t.getRequestURI().toString().replaceFirst("/confirmarEmail?/","");
-            String email=termo.split("&")[0].replaceFirst("email=","");
-            String codigo=termo.split("&")[1].replaceFirst("senha=","");
+            String rs="falha, comando nao reconhecido";
+            byte []bs=rs.getBytes("UNICODE");
+            origem.sendResponseHeaders(200, bs.length);
+            origem.getResponseBody().write(bs);
         }
     }
     static class Stop implements HttpHandler
