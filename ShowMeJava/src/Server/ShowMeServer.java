@@ -36,8 +36,9 @@ public class ShowMeServer {
             "editarPerfil/",
             "novoEvento/",
             "listarEventosdia/",
-            "listarEventosMes/",
-            "listarEventosMesSigo/"
+            "evento/",
+            "contarEventosMes/",
+            "contarEventosMesSigo/"
             };            
             for (int i=0;i<cases.length;i++){
                 System.out.println(cases[i]);
@@ -54,8 +55,9 @@ public class ShowMeServer {
                         case 6: new Update(origem).UpdateGroup(termo);break;  
                         case 7: new Insert(origem).CreateEvent(termo);break;
                         case 8: new Select(origem).EventosDia(termo);break;
-                        case 9: new Select(origem).QuantidadeEventosMes(termo);break;
-                        case 10: new Select(origem).QuantidadeEventosMesSigo(termo);break;
+                        case 9: new Select(origem).Evento(termo);break;
+                        case 10: new Select(origem).QuantidadeEventosMes(termo);break;
+                        case 11: new Select(origem).QuantidadeEventosMesSigo(termo);break;
                     }
                     break;
                 }

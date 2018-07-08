@@ -5,12 +5,10 @@
  */
 package BD;
 
-import Server.Validar;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import com.sun.net.httpserver.HttpExchange;
 import java.sql.SQLException;
 

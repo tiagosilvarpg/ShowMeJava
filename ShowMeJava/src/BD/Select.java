@@ -13,16 +13,12 @@ import java.sql.SQLException;
  *
  * @author Tiago
  */
-public class Select extends Processador{
-    ResultSet result;
-    public Select(HttpExchange origem) {
-        super(origem);
-    }
+public class Select extends Processador{    
     public void GruposParticipo(String codigoUsuario){
         if (Conectar()){
             try{
                 query = String.format("select codigo_grupo from participa where codigo_usuario = '%s'",codigoUsuario);
-                ResultSet result=conexao.createStatement().executeQuery(query);
+                result=conexao.createStatement().executeQuery(query);
                 String list="";
                 do{
                     list+=result.getString("codigo_grupo")+"\n";
@@ -56,11 +52,14 @@ public class Select extends Processador{
         }
         Desconectar();
     }
-    public void GruposPorNome(String nome){
+    public void GruposPorNome(String termo){
         if (Conectar()){
             try{
-                query = "select codigo_grupo from segue where nome_exibicao like '%"+nome+"%'";
-                ResultSet result=conexao.createStatement().executeQuery(query);
+                String nome=EncontrarParametro("nome", termo);
+                query = "select codigo_grupo,nome_exibicao from segue where nome_exibicao like ?";
+                statement=conexao.prepareStatement(query);
+                statement.setString(1, nome);
+                result=statement.executeQuery(query);
                 String list="";
                 do{
                     list+=result.getString("codigo_grupo")+"\n";
@@ -75,27 +74,44 @@ public class Select extends Processador{
         }
         Desconectar();
     }
+    public void Evento(String termo){
+        if (Conectar()){
+            try{
+                String codigo;
+                codigo=EncontrarParametro("codigo",termo);
+                query = "select e.data,e.local,g.nome_unico from evento e,grupo g WHERE codigo_evento=? and e.codigo_grupo=g.codigo_grupo";
+                statement=conexao.prepareStatement(query);
+                statement.setString(1, codigo);
+                result=statement.executeQuery();
+                String saida="";
+                result.first();
+                for (String s : new String[]{"codigo_grupo",""}){
+                    saida+=s+"="+result.getString(s)+"\n";
+                }
+                Responder(saida);
+            }
+            catch (SQLException e){
+                System.out.println(e.getMessage());
+                Responder("falha");
+            }
+        }
+        Desconectar();
+    }
     public void EventosDia(String termo){
         if (Conectar()){
             try{
-                String data,cidade,estado;
-                data=EncontrarParametro("data",termo);
-                cidade=EncontrarParametro("cidade",termo);
-                estado=EncontrarParametro("estado",termo);
-                query = "select codigo_evento from evento WHERE data >= ? AND data < ? + INTERVAL 1 DAY and cidade=? and estado=?";
+                String codigo;
+                codigo=EncontrarParametro("codigo",termo);
+                query = "select e.data,e.local,g.nome_unico from evento e,grupo g WHERE codigo_evento=? and e.codigo_grupo=g.codigo_grupo";
                 statement=conexao.prepareStatement(query);
-                statement.setString(1, data);
-                statement.setString(2, data);
-                statement.setString(3, cidade);
-                statement.setString(4, estado);
+                statement.setString(1, codigo);
                 result=statement.executeQuery();
-                String list="";
+                String saida="";
                 result.first();
-                do{
-                    list+=result.getString("codigo_evento")+"\n";
+                for (String s : new String[]{"codigo_grupo",""}){
+                    saida+=s+"="+result.getString(s)+"\n";
                 }
-                while (result.next());
-                Responder(list);
+                Responder(saida);
             }
             catch (SQLException e){
                 System.out.println(e.getMessage());
@@ -107,20 +123,24 @@ public class Select extends Processador{
     public void QuantidadeEventosMes(String termo){
         if (Conectar()){
             try{
-                String ano,mes;
-                ano=EncontrarParametro("ano",termo);
+                String mes,ano,cidade,estado,tag;
                 mes=EncontrarParametro("mes",termo);
+                ano=EncontrarParametro("ano",termo);
+                tag=EncontrarParametro("tag", termo);
+                cidade=EncontrarParametro("cidade", termo);
+                estado=EncontrarParametro("estado", termo);
                 String quantidade="";
-                for (int dia=0;dia<31;dia++){
-                    query = "select count(codigo_evento) from evento e,sigo s,grupo g where e.dia=? and e.mes=? and e.ano=?";
-                    statement=conexao.prepareStatement(query);
-                    statement.setString(1, dia+"");
-                    statement.setString(2, mes);
-                    statement.setString(3, ano);
-                    ResultSet result=conexao.createStatement().executeQuery(query);
-                    result.first();
-                    quantidade+=result.getString(1)+"&";
-                }
+                query = "select count(codigo_evento) from evento where month (data)=? and year (data)=? and cidade=? and estado=? and tag like ?";
+                statement=conexao.prepareStatement(query);
+                statement.setString(1, mes);
+                statement.setString(1, ano);
+                statement.setString(2, cidade);
+                statement.setString(3, estado);
+                statement.setString(4, tag);
+                result=statement.executeQuery(query);
+                result.first();
+                do {quantidade+=result.getString(1)+"&";}
+                while (result.next());
                 Responder(quantidade);
             }
             catch (SQLException e){
@@ -158,5 +178,9 @@ public class Select extends Processador{
             }
         }
         Desconectar();
+    }
+    ResultSet result;
+    public Select(HttpExchange origem) {
+        super(origem);
     }
 }
