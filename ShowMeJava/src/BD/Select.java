@@ -14,14 +14,18 @@ import java.sql.SQLException;
  * @author Tiago
  */
 public class Select extends Processador{    
-    public void GruposParticipo(String codigoUsuario){
+    public void GruposParticipo(String termo){
         if (Conectar()){
             try{
-                query = String.format("select codigo_grupo from participa where codigo_usuario = '%s'",codigoUsuario);
-                result=conexao.createStatement().executeQuery(query);
+                String usuario=EncontrarParametro("usuario", termo);
+                query ="select g.nome_exibicao,g.codigo_grupo from participa p,grupo g where p.codigo_usuario =? and p.codigo_grupo = g.codigo_grupo";
+                statement=conexao.prepareStatement(query);
+                statement.setString(1, usuario);
+                result=statement.executeQuery();
                 String list="";
+                result.first();
                 do{
-                    list+=result.getString("codigo_grupo")+"\n";
+                    list+="nome="+result.getString(1)+"&codigo="+result.getString(2)+"\n";
                 }
                 while (result.next());
                 Responder(list);
@@ -33,14 +37,18 @@ public class Select extends Processador{
         }
         Desconectar();
     }
-    public void GruposSigo(String codigoUsuario){
+    public void GruposSigo(String termo){
         if (Conectar()){
             try{
-                query = String.format("select codigo_grupo from segue where codigo_usuario = '%s'",codigoUsuario);
-                ResultSet result=conexao.createStatement().executeQuery(query);
+                String usuario=EncontrarParametro("usuario", termo);
+                query ="select g.nome_exibicao,g.codigo_grupo from segue s,grupo g where s.codigo_usuario =? and s.codigo_grupo = g.codigo_grupo";
+                statement=conexao.prepareStatement(query);
+                statement.setString(1, usuario);
+                result=statement.executeQuery();
                 String list="";
+                result.first();
                 do{
-                    list+=result.getString("codigo_grupo")+"\n";
+                    list+="nome="+result.getString(1)+"&codigo="+result.getString(2)+"\n";
                 }
                 while (result.next());
                 Responder(list);
@@ -56,9 +64,9 @@ public class Select extends Processador{
         if (Conectar()){
             try{
                 String nome=EncontrarParametro("nome", termo);
-                query = "select codigo_grupo,nome_exibicao from segue where nome_exibicao like ?";
+                query = "select codigo_grupo,nome_exibicao from grupo where nome_exibicao like ?";
                 statement=conexao.prepareStatement(query);
-                statement.setString(1, nome);
+                statement.setString(1, "%"+nome+"%");
                 result=statement.executeQuery(query);
                 String list="";
                 do{
@@ -123,23 +131,24 @@ public class Select extends Processador{
     public void QuantidadeEventosMes(String termo){
         if (Conectar()){
             try{
-                String mes,ano,cidade,estado,tag;
+                String mes,ano,cidade,estado;
                 mes=EncontrarParametro("mes",termo);
                 ano=EncontrarParametro("ano",termo);
-                tag=EncontrarParametro("tag", termo);
                 cidade=EncontrarParametro("cidade", termo);
                 estado=EncontrarParametro("estado", termo);
                 String quantidade="";
-                query = "select count(codigo_evento) from evento where month (data)=? and year (data)=? and cidade=? and estado=? and tag like ?";
+                query = "select day(data),count(codigo_evento) from evento where month (data)=? and year (data)=? and cidade like ? and estado like ? group by data ";
                 statement=conexao.prepareStatement(query);
                 statement.setString(1, mes);
-                statement.setString(1, ano);
-                statement.setString(2, cidade);
-                statement.setString(3, estado);
-                statement.setString(4, tag);
-                result=statement.executeQuery(query);
+                statement.setString(2, ano);
+                statement.setString(3, "%"+cidade+"%");
+                statement.setString(4, "%"+estado+"%");
+                System.out.println(statement);
+                result=statement.executeQuery();
                 result.first();
-                do {quantidade+=result.getString(1)+"&";}
+                do {
+                    quantidade+=result.getString(1)+"="+result.getString(2)+"\n";
+                }
                 while (result.next());
                 Responder(quantidade);
             }
@@ -153,23 +162,28 @@ public class Select extends Processador{
     public void QuantidadeEventosMesSigo(String termo){
         if (Conectar()){
             try{
-                String ano,mes,usuario;
-                ano=EncontrarParametro("ano",termo);
+                String mes,ano,cidade,estado,usuario;
                 mes=EncontrarParametro("mes",termo);
+                ano=EncontrarParametro("ano",termo);
+                cidade=EncontrarParametro("cidade", termo);
+                estado=EncontrarParametro("estado", termo);
                 usuario=EncontrarParametro("usuario", termo);
                 String quantidade="";
-                for (int dia=0;dia<31;dia++){
-                    query = "select count(codigo_evento) from evento e,sigo s,grupo g where e.dia=? and e.mes=? and e.ano=?"
-                            + " and e.codigo_grupo=g.codigo_grupo and g.codigo_grupo=s.codigo_grupo and s.codigo_usuario=?";
-                    statement=conexao.prepareStatement(query);
-                    statement.setString(1, dia+"");
-                    statement.setString(2, mes);
-                    statement.setString(3, ano);
-                    statement.setString(4, usuario);
-                    ResultSet result=conexao.createStatement().executeQuery(query);
-                    result.first();
-                    quantidade+=result.getString(1)+"&";
+                query = "select day(data),count(codigo_evento) from evento e,segue s where month (data)=? and year (data)=? and cidade like ? and estado like ?"
+                        + " and e.codigo_grupo=s.codigo_grupo and s.codigo_usuario=? group by data ";
+                statement=conexao.prepareStatement(query);
+                statement.setString(1, mes);
+                statement.setString(2, ano);
+                statement.setString(3, "%"+cidade+"%");
+                statement.setString(4, "%"+estado+"%");
+                statement.setString(5, usuario);
+                System.out.println(statement);
+                result=statement.executeQuery();
+                result.first();
+                do {
+                    quantidade+=result.getString(1)+"="+result.getString(2)+"\n";
                 }
+                while (result.next());
                 Responder(quantidade);
             }
             catch (SQLException e){

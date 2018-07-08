@@ -63,7 +63,7 @@ public class Processador {
             if (part.split("=")[0].equals(parametro))
                 return part.split("=")[1];
         }
-        return "%";//IMPORTANTE
+        return "";//IMPORTANTE
     }
     public void ChangePassword(String email,String password){
         if (Conectar()){

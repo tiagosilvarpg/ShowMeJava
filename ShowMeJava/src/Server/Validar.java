@@ -5,7 +5,10 @@
  */
 package Server;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -46,19 +49,13 @@ public abstract class Validar {
     public static boolean ChecarSenha(String pass, String senha) {
         return senha.equals(pass);
     }
-    public static String AAAAMMDD(){
-        String year=ZonedDateTime.now().getYear()+"";
-        String month=ZonedDateTime.now().getMonthValue()+"";
-        String day=ZonedDateTime.now().getDayOfMonth()+"";
-        if (month.length()==1)month="0"+month;
-        if (day.length()==1)day="0"+day;
-        return year+month+day;
+    public static String Now(){
+        String date=ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE);
+        String time=ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME);
+        return date+" "+time;
     }
-    public static String HHMM(){        
-        String hora=ZonedDateTime.now().getHour()+"";
-        String minuto=ZonedDateTime.now().getMinute()+"";        
-        if (hora.length()==1)hora="0"+hora;
-        if (minuto.length()==1)minuto="0"+minuto;
-        return hora+minuto;
+    public static String Today(){
+        String date=ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE);
+        return date;
     }
 }
