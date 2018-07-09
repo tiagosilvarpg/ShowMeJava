@@ -37,12 +37,12 @@ public class Insert extends Processador{
     public void Entrar(String termo){
         if (Conectar()){
             try{
-                String usuario=EncontrarParametro("usuario", termo);
+                String facebook=EncontrarParametro("facebook", termo);
                 String data=Validar.Now();
-                query="insert into login (codigo_usuario,time) values (?,?)";
+                query="insert into login (codigo_usuario,time) select codigo_usuario, ? from usuario where facebook=?";
                 statement=conexao.prepareStatement(query);
-                statement.setString(1, usuario);
-                statement.setString(2, data);
+                statement.setString(1, data);
+                statement.setString(2, facebook);
                 statement.executeUpdate();
                 resposta="sucesso, login efetuado";
             }

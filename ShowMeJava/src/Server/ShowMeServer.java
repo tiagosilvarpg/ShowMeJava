@@ -46,7 +46,7 @@ public class ShowMeServer {
                     termo=termo.replaceFirst(cases[i],"");
                     System.out.println(termo);
                     switch (i){
-                        case 0: new Insert(origem).CreateEvent(termo);break;
+                        case 0: new Insert(origem).CreateUser(termo);break;
                         case 1: new Insert(origem).Entrar(termo);break;
                         case 2: new Insert(origem).SeguirGrupo(termo);break;
                         case 3: new Delete(origem).DeixarDeSeguir(termo);break;

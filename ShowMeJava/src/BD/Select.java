@@ -14,6 +14,29 @@ import java.sql.SQLException;
  * @author Tiago
  */
 public class Select extends Processador{    
+    public void GruposSigo(String termo){
+        if (Conectar()){
+            try{
+                String usuario=EncontrarParametro("usuario", termo);
+                query ="select g.nome_exibicao,g.codigo_grupo from sigo s,grupo g where s.codigo_usuario =? and s.codigo_grupo = s.codigo_grupo";
+                statement=conexao.prepareStatement(query);
+                statement.setString(1, usuario);
+                result=statement.executeQuery();
+                String list="";
+                result.first();
+                do{
+                    list+="nome="+result.getString(1)+"&codigo="+result.getString(2)+"\n";
+                }
+                while (result.next());
+                Responder(list);
+            }
+            catch (SQLException e){
+                System.out.println(e.getMessage());
+                Responder("falha");
+            }
+        }
+        Desconectar();
+    }
     public void GruposParticipo(String termo){
         if (Conectar()){
             try{
@@ -37,21 +60,17 @@ public class Select extends Processador{
         }
         Desconectar();
     }
-    public void GruposSigo(String termo){
+    public void Usuario(String termo){
         if (Conectar()){
             try{
-                String usuario=EncontrarParametro("usuario", termo);
-                query ="select g.nome_exibicao,g.codigo_grupo from segue s,grupo g where s.codigo_usuario =? and s.codigo_grupo = g.codigo_grupo";
+                String facebook=EncontrarParametro("facebok", termo);
+                query ="select codigo_usuario from usuario where facebook=?";
                 statement=conexao.prepareStatement(query);
-                statement.setString(1, usuario);
+                statement.setString(1, facebook);
                 result=statement.executeQuery();
-                String list="";
                 result.first();
-                do{
-                    list+="nome="+result.getString(1)+"&codigo="+result.getString(2)+"\n";
-                }
-                while (result.next());
-                Responder(list);
+                String codigo=result.getString(1);
+                Responder(codigo);
             }
             catch (SQLException e){
                 System.out.println(e.getMessage());
