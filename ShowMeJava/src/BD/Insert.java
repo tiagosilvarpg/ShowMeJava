@@ -18,12 +18,10 @@ public class Insert extends Processador{
     public void CreateUser(String termo){
         if (Conectar()){        
             try {
-                String email=EncontrarParametro("email", termo);
                 String facebook=EncontrarParametro("facebook", termo);
-                query = "insert into usuario (email,facebook) values (?,?)";
+                query = "insert into usuario (facebook) values (?)";
                 statement=conexao.prepareStatement(query);
-                statement.setString(1, email);
-                statement.setString(2, facebook);
+                statement.setString(1, facebook);
                 statement.executeUpdate();
                 Responder("sucesso, conta vinculada ao facebook");
             }
